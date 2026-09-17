@@ -1,7 +1,7 @@
 package vectorwing.farmersdelight.common.block;
 
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.ticks.ScheduledTickAccess;
+import net.minecraft.world.level.ScheduledTickAccess;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

@@ -105,7 +105,7 @@ public abstract class AbstractStoveBlock extends BaseEntityBlock
 	}
 
 	protected InteractionResult tryToExtinguish(ItemStack heldStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		if (heldStack.canPerformAction(ItemAbilities.SHOVEL_DIG)) {
+		if (heldStack.canPerformAction(ItemAbilities.SHOVEL_FLATTEN)) {
 			if (!level.isClientSide()) {
 				level.levelEvent(null, LevelEvent.SOUND_EXTINGUISH_FIRE, pos, 0);
 			}

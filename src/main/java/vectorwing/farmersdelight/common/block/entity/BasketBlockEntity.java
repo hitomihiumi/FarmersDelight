@@ -1,5 +1,7 @@
 package vectorwing.farmersdelight.common.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -46,23 +48,23 @@ public class BasketBlockEntity extends RandomizableContainerBlockEntity implemen
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.loadAdditional(compound, registries);
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
 		this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-		if (!this.tryLoadLootTable(compound)) {
-			ContainerHelper.loadAllItems(compound, this.items, registries);
+		if (!this.tryLoadLootTable(input)) {
+			ContainerHelper.loadAllItems(input, this.items);
 		}
-		this.transferCooldown = compound.getInt("TransferCooldown");
+		this.transferCooldown = input.getIntOr("TransferCooldown", 0);
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.saveAdditional(compound, registries);
-		if (!this.trySaveLootTable(compound)) {
-			ContainerHelper.saveAllItems(compound, this.items, registries);
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		if (!this.trySaveLootTable(output)) {
+			ContainerHelper.saveAllItems(output, this.items);
 		}
 
-		compound.putInt("TransferCooldown", this.transferCooldown);
+		output.putInt("TransferCooldown", this.transferCooldown);
 	}
 
 	@Override

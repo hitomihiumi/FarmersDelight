@@ -1,7 +1,7 @@
 package vectorwing.farmersdelight.common.block;
 
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.ticks.ScheduledTickAccess;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -51,7 +51,7 @@ public class SafetyNetBlock extends Block implements SimpleWaterloggedBlock
 	@Override
 	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
 		if (state.getValue(WATERLOGGED)) {
-			level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+			scheduledTickAccess.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 		}
 
 		return super.updateShape(state, level, scheduledTickAccess, currentPos, facing, facingPos, facingState, random);
@@ -77,9 +77,9 @@ public class SafetyNetBlock extends Block implements SimpleWaterloggedBlock
 	}
 
 	@Override
-	public void updateEntityAfterFallOn(BlockGetter level, Entity entity) {
+	public void updateEntityMovementAfterFallOn(BlockGetter level, Entity entity) {
 		if (entity.isSuppressingBounce()) {
-			super.updateEntityAfterFallOn(level, entity);
+			super.updateEntityMovementAfterFallOn(level, entity);
 		} else {
 			this.bounceEntity(entity);
 		}

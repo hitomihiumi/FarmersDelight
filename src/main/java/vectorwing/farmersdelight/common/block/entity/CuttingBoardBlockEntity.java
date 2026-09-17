@@ -1,5 +1,7 @@
 package vectorwing.farmersdelight.common.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -76,17 +78,17 @@ public class CuttingBoardBlockEntity extends SyncedBlockEntity implements Cleara
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.loadAdditional(compound, registries);
-		isItemCarvingBoard = compound.getBoolean("IsItemCarved");
-		inventory.deserializeNBT(registries, compound.getCompound("Inventory"));
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
+		isItemCarvingBoard = input.getBooleanOr("IsItemCarved", false);
+		inventory.deserialize(input.childOrEmpty("Inventory"));
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.saveAdditional(compound, registries);
-		compound.put("Inventory", inventory.serializeNBT(registries));
-		compound.putBoolean("IsItemCarved", isItemCarvingBoard);
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		inventory.serialize(output.child("Inventory"));
+		output.putBoolean("IsItemCarved", isItemCarvingBoard);
 	}
 
 	public boolean processStoredItemUsingTool(ItemStack toolStack, @Nullable Player player) {

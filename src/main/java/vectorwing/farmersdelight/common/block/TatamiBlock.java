@@ -1,7 +1,7 @@
 package vectorwing.farmersdelight.common.block;
 
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.ticks.ScheduledTickAccess;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -60,7 +60,7 @@ public class TatamiBlock extends Block
 			BlockState facingState = level.getBlockState(facingPos);
 			if (facingState.getBlock() == this && !facingState.getValue(PAIRED)) {
 				level.setBlock(facingPos, state.setValue(FACING, state.getValue(FACING).getOpposite()).setValue(PAIRED, true), 3);
-				level.blockUpdated(pos, Blocks.AIR);
+				level.updateNeighborsAt(pos, Blocks.AIR, null);
 				state.updateNeighbourShapes(level, pos, 3);
 			}
 		}

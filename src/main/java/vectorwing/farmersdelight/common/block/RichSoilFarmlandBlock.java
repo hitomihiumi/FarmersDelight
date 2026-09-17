@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.neoforge.common.FarmlandWaterManager;
-import net.neoforged.neoforge.common.util.TriState;
+import net.minecraft.util.TriState;
 import vectorwing.farmersdelight.common.registry.ModBlocks;
 
 import javax.annotation.Nullable;

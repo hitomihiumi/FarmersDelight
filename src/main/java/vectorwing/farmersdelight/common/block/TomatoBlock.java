@@ -1,6 +1,6 @@
 package vectorwing.farmersdelight.common.block;
 
-import net.minecraft.world.ticks.ScheduledTickAccess;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -242,7 +242,7 @@ public class TomatoBlock extends CropBlock
 	@Override
 	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
 		if (!state.canSurvive(level, currentPos)) {
-			level.scheduleTick(currentPos, this, 1);
+			scheduledTickAccess.scheduleTick(currentPos, this, 1);
 		}
 
 		return state;

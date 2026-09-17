@@ -1,5 +1,7 @@
 package vectorwing.farmersdelight.common.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -53,31 +55,25 @@ public abstract class AbstractStoveBlockEntity extends BlockEntity implements Cl
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
 
-		CompoundTag inventoryTag;
-		if (tag.contains("Inventory")) inventoryTag = tag.getCompound("Inventory");
-		else inventoryTag = tag;
-		items.deserializeNBT(registries, inventoryTag);
+		// Inventories used to be written at the top level; keep reading those saves.
+		items.deserialize(input.child("Inventory").orElse(input));
 
-		if (tag.contains("CookingTimes", 11)) {
-			int[] arrayCookingTimes = tag.getIntArray("CookingTimes");
-			System.arraycopy(arrayCookingTimes, 0, this.cookingProgress, 0, Math.min(this.cookingTime.length, arrayCookingTimes.length));
-		}
+		input.getIntArray("CookingTimes").ifPresent(arrayCookingTimes ->
+				System.arraycopy(arrayCookingTimes, 0, this.cookingProgress, 0, Math.min(this.cookingTime.length, arrayCookingTimes.length)));
 
-		if (tag.contains("CookingTotalTimes", 11)) {
-			int[] arrayCookingTimesTotal = tag.getIntArray("CookingTotalTimes");
-			System.arraycopy(arrayCookingTimesTotal, 0, this.cookingTime, 0, Math.min(this.cookingTime.length, arrayCookingTimesTotal.length));
-		}
+		input.getIntArray("CookingTotalTimes").ifPresent(arrayCookingTimesTotal ->
+				System.arraycopy(arrayCookingTimesTotal, 0, this.cookingTime, 0, Math.min(this.cookingTime.length, arrayCookingTimesTotal.length)));
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
-		tag.put("Inventory", items.serializeNBT(registries));
-		tag.putIntArray("CookingTimes", this.cookingProgress);
-		tag.putIntArray("CookingTotalTimes", this.cookingTime);
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		items.serialize(output.child("Inventory"));
+		output.putIntArray("CookingTimes", this.cookingProgress);
+		output.putIntArray("CookingTotalTimes", this.cookingTime);
 	}
 
 	@Override
@@ -87,9 +83,7 @@ public abstract class AbstractStoveBlockEntity extends BlockEntity implements Cl
 
 	@Override
 	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-		CompoundTag tag = super.getUpdateTag(registries);
-		tag.put("Inventory", items.serializeNBT(registries));
-		return tag;
+		return this.saveCustomOnly(registries);
 	}
 
 	public static void serverTick(Level level, BlockPos pos, BlockState state, AbstractStoveBlockEntity stoveEntity) {

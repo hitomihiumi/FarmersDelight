@@ -1,5 +1,7 @@
 package vectorwing.farmersdelight.common.block.entity;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -125,23 +127,23 @@ public class SkilletBlockEntity extends SyncedBlockEntity implements HeatableBlo
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.loadAdditional(compound, registries);
-		inventory.deserializeNBT(registries, compound.getCompound("Inventory"));
-		cookingTime = compound.getInt("CookTime");
-		cookingTimeTotal = compound.getInt("CookTimeTotal");
-		skilletStack = ItemStack.parseOptional(registries, compound.getCompound("Skillet"));
-		fireAspectLevel = ItemUtils.getValidatedEnchantmentLevel(Enchantments.FIRE_ASPECT, registries, skilletStack);
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
+		inventory.deserialize(input.childOrEmpty("Inventory"));
+		cookingTime = input.getIntOr("CookTime", 0);
+		cookingTimeTotal = input.getIntOr("CookTimeTotal", 0);
+		skilletStack = input.read("Skillet", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+		fireAspectLevel = ItemUtils.getValidatedEnchantmentLevel(Enchantments.FIRE_ASPECT, input.lookup(), skilletStack);
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-		super.saveAdditional(compound, registries);
-		compound.put("Inventory", inventory.serializeNBT(registries));
-		compound.putInt("CookTime", cookingTime);
-		compound.putInt("CookTimeTotal", cookingTimeTotal);
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
+		inventory.serialize(output.child("Inventory"));
+		output.putInt("CookTime", cookingTime);
+		output.putInt("CookTimeTotal", cookingTimeTotal);
 		if (!skilletStack.isEmpty()) {
-			compound.put("Skillet", skilletStack.save(registries));
+			output.store("Skillet", ItemStack.CODEC, skilletStack);
 		}
 	}
 

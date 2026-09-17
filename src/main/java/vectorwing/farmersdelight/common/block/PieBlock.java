@@ -1,7 +1,12 @@
 package vectorwing.farmersdelight.common.block;
 
+import net.minecraft.world.item.consume_effects.ConsumeEffect;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.ticks.ScheduledTickAccess;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -126,13 +131,21 @@ public class PieBlock extends Block
 			return InteractionResult.PASS;
 		} else {
 			ItemStack sliceStack = this.getPieSliceItem();
-			FoodProperties sliceFood = sliceStack.getItem().getFoodProperties(sliceStack, player);
+			FoodProperties sliceFood = sliceStack.get(DataComponents.FOOD);
 
 			if (sliceFood != null) {
 				player.getFoodData().eat(sliceFood);
-				for (FoodProperties.PossibleEffect effect : sliceFood.effects()) {
-					if (!level.isClientSide && effect != null && level.random.nextFloat() < effect.probability()) {
-						player.addEffect(effect.effect());
+			}
+
+			// Eating effects live on the CONSUMABLE component as of 1.21.2.
+			Consumable sliceConsumable = sliceStack.get(DataComponents.CONSUMABLE);
+			if (sliceConsumable != null && !level.isClientSide) {
+				for (ConsumeEffect consumeEffect : sliceConsumable.onConsumeEffects()) {
+					if (consumeEffect instanceof ApplyStatusEffectsConsumeEffect statusEffects
+							&& level.random.nextFloat() < statusEffects.probability()) {
+						for (MobEffectInstance effect : statusEffects.effects()) {
+							player.addEffect(new MobEffectInstance(effect));
+						}
 					}
 				}
 			}

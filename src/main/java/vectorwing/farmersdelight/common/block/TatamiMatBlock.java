@@ -1,7 +1,7 @@
 package vectorwing.farmersdelight.common.block;
 
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.ticks.ScheduledTickAccess;
+import net.minecraft.world.level.ScheduledTickAccess;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -98,7 +98,7 @@ public class TatamiMatBlock extends HorizontalDirectionalBlock
 		if (!level.isClientSide) {
 			BlockPos facingPos = pos.relative(state.getValue(FACING));
 			level.setBlock(facingPos, state.setValue(PART, BedPart.HEAD), 3);
-			level.blockUpdated(pos, Blocks.AIR);
+			level.updateNeighborsAt(pos, Blocks.AIR, null);
 			state.updateNeighbourShapes(level, pos, 3);
 		}
 	}

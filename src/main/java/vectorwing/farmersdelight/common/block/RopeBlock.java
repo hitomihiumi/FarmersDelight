@@ -1,7 +1,7 @@
 package vectorwing.farmersdelight.common.block;
 
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.ticks.ScheduledTickAccess;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -153,7 +153,7 @@ public class RopeBlock extends IronBarsBlock
 	@Override
 	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
 		if (state.getValue(WATERLOGGED)) {
-			level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+			scheduledTickAccess.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 		}
 
 		boolean tiedToBell = state.getValue(TIED_TO_BELL);
@@ -163,7 +163,7 @@ public class RopeBlock extends IronBarsBlock
 
 		return facing.getAxis().isHorizontal()
 				? state.setValue(TIED_TO_BELL, tiedToBell).setValue(PROPERTY_BY_DIRECTION.get(facing), tieToRopeAndWalls(facingState))
-				: super.updateShape(state.setValue(TIED_TO_BELL, tiedToBell), facing, facingState, level, currentPos, facingPos);
+				: super.updateShape(state.setValue(TIED_TO_BELL, tiedToBell), level, scheduledTickAccess, currentPos, facing, facingPos, facingState, random);
 	}
 
 	@Override

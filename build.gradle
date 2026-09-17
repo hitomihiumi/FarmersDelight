@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '1.0.0'
+    id 'net.neoforged.moddev' version '2.0.147'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -16,18 +16,12 @@ group = 'vectorwing.farmersdelight' // http://maven.apache.org/guides/mini/guide
 repositories {
     maven {
         // JEI
-        name = "Progwml6 maven"
-        url = "https://dvs1.progwml6.com/files/maven/"
-    }
-    maven {
-        // CraftTweaker
         name = "BlameJared"
         url = "https://maven.blamejared.com"
     }
-    maven { url "https://maven.ryanliptak.com/" }
     maven {
-        // EMI
-        url = "https://maven.terraformersmc.com/"
+        // AppleSkin
+        url = "https://maven.ryanliptak.com/"
     }
 }
 
@@ -107,6 +101,15 @@ sourceSets.main.resources {
     srcDir 'src/generated/resources'
 }
 
+// EMI and CraftTweaker have no Minecraft 1.21.8 builds published for NeoForge, so their
+// integrations cannot be compiled against this version. The sources are kept in the tree
+// (untouched) and excluded from compilation; re-add the dependencies above and drop these
+// excludes once those mods ship 1.21.8 artifacts.
+sourceSets.main.java {
+    exclude 'vectorwing/farmersdelight/integration/emi/**'
+    exclude 'vectorwing/farmersdelight/integration/crafttweaker/**'
+}
+
 configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
@@ -117,17 +120,9 @@ dependencies {
     compileOnly "mezz.jei:jei-${jei_minecraft}-neoforge-api:${jei_version}"
 //    localRuntime "mezz.jei:jei-${jei_minecraft}-neoforge:${jei_version}"
 
-    // EMI
-    compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
-    runtimeOnly "dev.emi:emi-neoforge:${emi_version}"
-
     // AppleSkin
     compileOnly "squeek.appleskin:appleskin-neoforge:${appleskin_version}:api"
     runtimeOnly "squeek.appleskin:appleskin-neoforge:${appleskin_version}"
-
-    def ctDep = "com.blamejared.crafttweaker:CraftTweaker-neoforge-${crafttweaker_minecraft}:${crafttweaker_version}"
-    compileOnly ctDep
-    runtimeOnly ctDep
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -166,6 +161,7 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    options.compilerArgs << '-Xmaxerrs' << '10000'
 }
 
 idea {

@@ -6,7 +6,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
@@ -35,12 +34,11 @@ public class TooltipEvents
 			return;
 		}
 
-		FoodProperties soupEffects = FoodValues.VANILLA_SOUP_EFFECTS.get(food);
+		List<MobEffectInstance> soupEffects = FoodValues.VANILLA_SOUP_EFFECTS.get(food);
 
 		if (soupEffects != null) {
 			List<Component> tooltip = event.getToolTip();
-			for (FoodProperties.PossibleEffect effect : soupEffects.effects()) {
-				MobEffectInstance effectInstance = effect.effect();
+			for (MobEffectInstance effectInstance : soupEffects) {
 				MutableComponent effectText = Component.translatable(effectInstance.getDescriptionId());
 				Player player = event.getEntity();
 				if (effectInstance.getDuration() > 20) {

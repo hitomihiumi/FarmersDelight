@@ -4,7 +4,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.UseRemainder;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
@@ -28,7 +30,10 @@ public class CommonModBusEvents
 			});
 		}
 		if (Configuration.ENABLE_RABBIT_STEW_BUFF.get()) {
-			event.modify(Items.RABBIT_STEW, (builder) -> builder.set(DataComponents.FOOD, FoodValues.RABBIT_STEW_BUFF));
+			event.modify(Items.RABBIT_STEW, (builder) -> builder
+					.set(DataComponents.FOOD, FoodValues.RABBIT_STEW_BUFF.food())
+					.set(DataComponents.CONSUMABLE, FoodValues.RABBIT_STEW_BUFF.consumable())
+					.set(DataComponents.USE_REMAINDER, new UseRemainder(new ItemStack(FoodValues.RABBIT_STEW_BUFF_REMAINDER))));
 		}
 	}
 }

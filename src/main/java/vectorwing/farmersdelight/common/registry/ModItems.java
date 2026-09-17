@@ -40,8 +40,8 @@ public class ModItems
 		return new Item.Properties();
 	}
 
-	public static Item.Properties knifeItem(Tier tier) {
-		return new Item.Properties().attributes(KnifeItem.createAttributes(tier, 0.5F, -2.0F));
+	public static Item.Properties knifeItem(ToolMaterial material) {
+		return KnifeItem.createProperties(material, new Item.Properties());
 	}
 
 	public static Item.Properties foodItem(FoodValues.FoodValue food) {
@@ -228,15 +228,15 @@ public class ModItems
 
 	// Tools
 	public static final Supplier<Item> FLINT_KNIFE = registerWithTab("flint_knife",
-			props -> new KnifeItem(ModMaterials.FLINT, props), knifeItem(ModMaterials.FLINT));
+			KnifeItem::new, knifeItem(ModMaterials.FLINT));
 	public static final Supplier<Item> IRON_KNIFE = registerWithTab("iron_knife",
-			props -> new KnifeItem(Tiers.IRON, props), knifeItem(Tiers.IRON));
+			KnifeItem::new, knifeItem(ToolMaterial.IRON));
 	public static final Supplier<Item> DIAMOND_KNIFE = registerWithTab("diamond_knife",
-			props -> new KnifeItem(Tiers.DIAMOND, props), knifeItem(Tiers.DIAMOND));
+			KnifeItem::new, knifeItem(ToolMaterial.DIAMOND));
 	public static final Supplier<Item> NETHERITE_KNIFE = registerWithTab("netherite_knife",
-			props -> new KnifeItem(Tiers.NETHERITE, props), knifeItem(Tiers.NETHERITE).fireResistant());
+			KnifeItem::new, knifeItem(ToolMaterial.NETHERITE).fireResistant());
 	public static final Supplier<Item> GOLDEN_KNIFE = registerWithTab("golden_knife",
-			props -> new KnifeItem(Tiers.GOLD, props), knifeItem(Tiers.GOLD));
+			KnifeItem::new, knifeItem(ToolMaterial.GOLD));
 
 	public static final Supplier<Item> STRAW = registerWithTab("straw",
 			props -> new Item(props), basicItem());
@@ -274,15 +274,15 @@ public class ModItems
 	public static final Supplier<Item> TOMATO = registerWithTab("tomato",
 			props -> new Item(props), foodItem(FoodValues.TOMATO));
 	public static final Supplier<Item> ONION = registerWithTab("onion",
-			props -> new ItemNameBlockItem(ModBlocks.ONION_CROP.get(), props), foodItem(FoodValues.ONION));
+			props -> new BlockItem(ModBlocks.ONION_CROP.get(), props.useItemDescriptionPrefix()), foodItem(FoodValues.ONION));
 	public static final Supplier<Item> RICE_PANICLE = registerWithTab("rice_panicle",
 			props -> new Item(props), basicItem());
 	public static final Supplier<Item> RICE = registerWithTab("rice",
-			props -> new RiceItem(ModBlocks.RICE_CROP.get(), props), basicItem());
+			props -> new RiceItem(ModBlocks.RICE_CROP.get(), props.useItemDescriptionPrefix()), basicItem());
 	public static final Supplier<Item> CABBAGE_SEEDS = registerWithTab("cabbage_seeds",
-			props -> new ItemNameBlockItem(ModBlocks.CABBAGE_CROP.get(), props), basicItem());
+			props -> new BlockItem(ModBlocks.CABBAGE_CROP.get(), props.useItemDescriptionPrefix()), basicItem());
 	public static final Supplier<Item> TOMATO_SEEDS = registerWithTab("tomato_seeds",
-			props -> new ItemNameBlockItem(ModBlocks.BUDDING_TOMATO_CROP.get(), props), basicItem());
+			props -> new BlockItem(ModBlocks.BUDDING_TOMATO_CROP.get(), props.useItemDescriptionPrefix()), basicItem());
 	public static final Supplier<Item> ROTTEN_TOMATO = registerWithTab("rotten_tomato",
 			props -> new RottenTomatoItem(props), new Item.Properties().stacksTo(16));
 

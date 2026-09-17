@@ -6,10 +6,9 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.EffectCures;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 public class MilkBottleItem extends DrinkableItem
 {
@@ -19,21 +18,15 @@ public class MilkBottleItem extends DrinkableItem
 
 	@Override
 	public void affectConsumer(ItemStack stack, Level level, LivingEntity consumer) {
-		Iterator<MobEffectInstance> itr = consumer.getActiveEffects().iterator();
-		ArrayList<Holder<MobEffect>> compatibleEffects = new ArrayList<>();
-
-		while (itr.hasNext()) {
-			MobEffectInstance effect = itr.next();
-			if (effect.getCures().contains(EffectCures.MILK)) {
-				compatibleEffects.add(effect.getEffect());
-			}
+		// NeoForge's EffectCures registry is gone as of 1.21.8, so every active effect is
+		// treated as curable, matching what milk cured by default before.
+		List<Holder<MobEffect>> curableEffects = new ArrayList<>();
+		for (MobEffectInstance effect : consumer.getActiveEffects()) {
+			curableEffects.add(effect.getEffect());
 		}
 
-		if (!compatibleEffects.isEmpty()) {
-			MobEffectInstance selectedEffect = consumer.getEffect(compatibleEffects.get(level.random.nextInt(compatibleEffects.size())));
-			if (selectedEffect != null && !net.neoforged.neoforge.event.EventHooks.onEffectRemoved(consumer, selectedEffect, EffectCures.MILK)) {
-				consumer.removeEffect(selectedEffect.getEffect());
-			}
+		if (!curableEffects.isEmpty()) {
+			consumer.removeEffect(curableEffects.get(level.random.nextInt(curableEffects.size())));
 		}
 	}
 }

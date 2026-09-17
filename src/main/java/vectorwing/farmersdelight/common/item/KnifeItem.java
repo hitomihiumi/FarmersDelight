@@ -12,10 +12,10 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -39,7 +39,7 @@ import vectorwing.farmersdelight.common.utility.ItemUtils;
 
 import java.util.Set;
 
-public class KnifeItem extends DiggerItem
+public class KnifeItem extends Item
 {
 	/**
 	 * This action is used on cutting recipes which need a knife.
@@ -50,22 +50,26 @@ public class KnifeItem extends DiggerItem
 	 */
 	public static final ItemAbility KNIFE_HARVEST = ItemAbility.get("knife_harvest");
 
-	public static final Set<ItemAbility> KNIFE_ACTIONS = Set.of(ItemAbilities.SHEARS_CARVE, ItemAbilities.SWORD_DIG, KNIFE_DIG, KNIFE_HARVEST);
+	public static final Set<ItemAbility> KNIFE_ACTIONS = Set.of(ItemAbilities.SHEARS_CARVE, KNIFE_DIG, KNIFE_HARVEST);
 
-	public KnifeItem(Tier tier, Properties properties) {
-		super(tier, ModTags.Blocks.MINEABLE_WITH_KNIFE, properties);
+	public KnifeItem(Properties properties) {
+		super(properties);
+	}
+
+	/**
+	 * Tools stopped being their own item classes in 1.21.5; a knife is now a plain Item whose
+	 * mining and attack behaviour comes from the TOOL, WEAPON and attribute components applied here.
+	 */
+	public static Properties createProperties(ToolMaterial material, Properties properties) {
+		return material.applyToolProperties(properties, ModTags.Blocks.MINEABLE_WITH_KNIFE, 0.5F, -2.0F, 0.0F);
 	}
 
 	@Override
-	public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-		return !player.isCreative();
+	public boolean canDestroyBlock(ItemStack stack, BlockState state, Level level, BlockPos pos, LivingEntity entity) {
+		return !(entity instanceof Player player && player.getAbilities().instabuild);
 	}
 
 	@Override
-	public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-		return true;
-	}
-
 	public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
 		stack.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND);
 	}
@@ -167,7 +171,7 @@ public class KnifeItem extends DiggerItem
 				level.addFreshEntity(itemEntity);
 				toolStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
 			}
-			return InteractionResult.sidedSuccess(level.isClientSide);
+			return InteractionResult.SUCCESS;
 		} else {
 			return InteractionResult.PASS;
 		}

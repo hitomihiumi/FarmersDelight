@@ -26,8 +26,11 @@ public class FuelBlockItem extends BlockItem
 		this.burnTime = burnTime;
 	}
 
-	@Override
-	public int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
+	/**
+	 * Burn times come from the {@link NeoForgeDataMaps#FURNACE_FUELS} data map; this value is kept
+	 * only so existing references to it keep working.
+	 */
+	public int getBurnTime() {
 		return this.burnTime;
 	}
 }

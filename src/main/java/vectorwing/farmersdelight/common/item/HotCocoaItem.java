@@ -8,10 +8,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.EffectCures;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 public class HotCocoaItem extends DrinkableItem
 {
@@ -21,21 +20,17 @@ public class HotCocoaItem extends DrinkableItem
 
 	@Override
 	public void affectConsumer(ItemStack stack, Level level, LivingEntity consumer) {
-		Iterator<MobEffectInstance> itr = consumer.getActiveEffects().iterator();
-		ArrayList<Holder<MobEffect>> compatibleEffects = new ArrayList<>();
-
-		while (itr.hasNext()) {
-			MobEffectInstance effect = itr.next();
-			if (effect.getEffect().value().getCategory().equals(MobEffectCategory.HARMFUL) && effect.getCures().contains(EffectCures.MILK)) {
-				compatibleEffects.add(effect.getEffect());
+		// NeoForge's EffectCures registry is gone as of 1.21.8; hot cocoa keeps its original
+		// behaviour of clearing a single harmful effect.
+		List<Holder<MobEffect>> curableEffects = new ArrayList<>();
+		for (MobEffectInstance effect : consumer.getActiveEffects()) {
+			if (effect.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
+				curableEffects.add(effect.getEffect());
 			}
 		}
 
-		if (!compatibleEffects.isEmpty()) {
-			MobEffectInstance selectedEffect = consumer.getEffect(compatibleEffects.get(level.random.nextInt(compatibleEffects.size())));
-			if (selectedEffect != null && !net.neoforged.neoforge.event.EventHooks.onEffectRemoved(consumer, selectedEffect, EffectCures.MILK)) {
-				consumer.removeEffect(selectedEffect.getEffect());
-			}
+		if (!curableEffects.isEmpty()) {
+			consumer.removeEffect(curableEffects.get(level.random.nextInt(curableEffects.size())));
 		}
 	}
 }

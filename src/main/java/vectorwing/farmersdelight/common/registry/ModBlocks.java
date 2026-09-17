@@ -300,15 +300,15 @@ public class ModBlocks
 			props -> new SandyShrubBlock(props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
 
 	public static final Supplier<Block> WILD_CABBAGES = BLOCKS.registerBlock("wild_cabbages",
-			props -> new WildCropBlock(MobEffects.DAMAGE_BOOST, 6, props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
+			props -> new WildCropBlock(MobEffects.STRENGTH, 6, props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
 	public static final Supplier<Block> WILD_ONIONS = BLOCKS.registerBlock("wild_onions",
 			props -> new WildCropBlock(MobEffects.FIRE_RESISTANCE, 6, props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
 	public static final Supplier<Block> WILD_TOMATOES = BLOCKS.registerBlock("wild_tomatoes",
 			props -> new WildCropBlock(MobEffects.POISON, 10, props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
 	public static final Supplier<Block> WILD_CARROTS = BLOCKS.registerBlock("wild_carrots",
-			props -> new WildCropBlock(MobEffects.DIG_SLOWDOWN, 6, props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
+			props -> new WildCropBlock(MobEffects.MINING_FATIGUE, 6, props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
 	public static final Supplier<Block> WILD_POTATOES = BLOCKS.registerBlock("wild_potatoes",
-			props -> new WildCropBlock(MobEffects.CONFUSION, 8, props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
+			props -> new WildCropBlock(MobEffects.NAUSEA, 8, props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
 	public static final Supplier<Block> WILD_BEETROOTS = BLOCKS.registerBlock("wild_beetroots",
 			props -> new WildCropBlock(MobEffects.WATER_BREATHING, 8, props), Block.Properties.ofFullCopy(Blocks.TALL_GRASS));
 	public static final Supplier<Block> WILD_RICE = BLOCKS.registerBlock("wild_rice",

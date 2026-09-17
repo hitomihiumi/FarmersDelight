@@ -148,10 +148,10 @@ public class FoodValues
 			.nutrition(2).saturationModifier(0.1f).fast().build();
 	public static final FoodValue CAKE_SLICE = (new Builder())
 			.nutrition(2).saturationModifier(0.1f).fast()
-			.effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 400, 0, false, false), 1.0F).build();
+			.effect(() -> new MobEffectInstance(MobEffects.SPEED, 400, 0, false, false), 1.0F).build();
 	public static final FoodValue PIE_SLICE = (new Builder())
 			.nutrition(3).saturationModifier(0.3f).fast()
-			.effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 0, false, false), 1.0F).build();
+			.effect(() -> new MobEffectInstance(MobEffects.SPEED, 600, 0, false, false), 1.0F).build();
 	public static final FoodValue FRUIT_SALAD = (new Builder())
 			.nutrition(6).saturationModifier(0.6f)
 			.effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 100, 0), 1.0F).build();
@@ -165,7 +165,7 @@ public class FoodValues
 			.effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 100, 0), 1.0F).build();
 	public static final FoodValue NETHER_SALAD = (new Builder())
 			.nutrition(5).saturationModifier(0.4f)
-			.effect(() -> new MobEffectInstance(MobEffects.CONFUSION, 240, 0), 0.3F).build();
+			.effect(() -> new MobEffectInstance(MobEffects.NAUSEA, 240, 0), 0.3F).build();
 	public static final FoodValue BARBECUE_STICK = (new Builder())
 			.nutrition(8).saturationModifier(0.9f).build();
 	public static final FoodValue EGG_SANDWICH = (new Builder())

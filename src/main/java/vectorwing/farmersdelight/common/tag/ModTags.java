@@ -115,6 +115,9 @@ public class ModTags
 
 		public static final TagKey<Item> KNIVES = modItemTag("tools/knives");
 
+		// Items which repair flint tools. Tool materials are repaired by an item tag as of 1.21.5.
+		public static final TagKey<Item> FLINT_TOOL_MATERIALS = modItemTag("flint_tool_materials");
+
 		public static final TagKey<Item> MUSHROOM_COLONIES = modItemTag("mushroom_colonies");
 
 		public static final TagKey<Item> WILD_CROPS = modItemTag("wild_crops");

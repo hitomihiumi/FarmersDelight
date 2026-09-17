@@ -4,13 +4,14 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -21,10 +22,12 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.RecipePropertySet;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -50,18 +53,21 @@ import vectorwing.farmersdelight.common.utility.TextUtils;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class SkilletItem extends BlockItem
 {
 	public static final float FLIP_TIME = 12;
 
-	public static final Tiers SKILLET_TIER = Tiers.IRON;
+	public static final ToolMaterial SKILLET_TIER = ToolMaterial.IRON;
 	protected static final ResourceLocation FD_ATTACK_KNOCKBACK_UUID = ResourceLocation.fromNamespaceAndPath(FarmersDelight.MODID, "base_attack_knockback");
 
 	public SkilletItem(Block block, Item.Properties properties) {
-		super(block, properties.durability(SKILLET_TIER.getUses()));
-		float attackDamage = 5.0F + SKILLET_TIER.getAttackDamageBonus();
+		super(block, properties
+				.durability(SKILLET_TIER.durability())
+				.repairable(SKILLET_TIER.repairItems())
+				.enchantable(SKILLET_TIER.enchantmentValue()));
 	}
 
 	@Override
@@ -78,9 +84,9 @@ public class SkilletItem extends BlockItem
 		return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
 	}
 
-	public static ItemAttributeModifiers createAttributes(Tier tier, float attackDamage, float attackSpeed) {
+	public static ItemAttributeModifiers createAttributes(ToolMaterial material, float attackDamage, float attackSpeed) {
 		return ItemAttributeModifiers.builder()
-			.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, attackDamage + tier.getAttackDamageBonus(), AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+			.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, attackDamage + material.attackDamageBonus(), AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
 			.add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, attackSpeed, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
 			.add(Attributes.ATTACK_KNOCKBACK, new AttributeModifier(FD_ATTACK_KNOCKBACK_UUID, 1, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND).build();
 	}
@@ -100,24 +106,19 @@ public class SkilletItem extends BlockItem
 			if (livingEntity instanceof Player player) {
 				float attackPower = player.getAttackStrengthScale(0.0F);
 				if (attackPower > 0.8F) {
-					player.getCommandSenderWorld().playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.ITEM_SKILLET_ATTACK_STRONG.get(), SoundSource.PLAYERS, 1.0F, pitch);
+					player.level().playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.ITEM_SKILLET_ATTACK_STRONG.get(), SoundSource.PLAYERS, 1.0F, pitch);
 				} else {
-					player.getCommandSenderWorld().playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.ITEM_SKILLET_ATTACK_WEAK.get(), SoundSource.PLAYERS, 0.8F, 0.9F);
+					player.level().playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.ITEM_SKILLET_ATTACK_WEAK.get(), SoundSource.PLAYERS, 0.8F, 0.9F);
 				}
 			} else {
-				livingEntity.getCommandSenderWorld().playSound(null, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), ModSounds.ITEM_SKILLET_ATTACK_STRONG.get(), SoundSource.PLAYERS, 1.0F, pitch);
+				livingEntity.level().playSound(null, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), ModSounds.ITEM_SKILLET_ATTACK_STRONG.get(), SoundSource.PLAYERS, 1.0F, pitch);
 			}
 		}
 	}
 
 	@Override
-	public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-		return !player.isCreative();
-	}
-
-	@Override
-	public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-		return true;
+	public boolean canDestroyBlock(ItemStack stack, BlockState state, Level level, BlockPos pos, LivingEntity entity) {
+		return !(entity instanceof Player player && player.getAbilities().instabuild);
 	}
 
 	@Override
@@ -139,8 +140,8 @@ public class SkilletItem extends BlockItem
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag isAdvanced) {
-		tooltip.add(TextUtils.PLACEABLE_SNEAKING);
+	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltipAdder, TooltipFlag isAdvanced) {
+		tooltipAdder.accept(TextUtils.PLACEABLE_SNEAKING);
 	}
 
 	@Override
@@ -151,7 +152,7 @@ public class SkilletItem extends BlockItem
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+	public InteractionResult use(Level level, Player player, InteractionHand hand) {
 		ItemStack skilletStack = player.getItemInHand(hand);
 		if (isPlayerNearHeatSource(player, level)) {
 			InteractionHand otherHand = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
@@ -159,27 +160,29 @@ public class SkilletItem extends BlockItem
 
 			if (!skilletStack.getOrDefault(ModDataComponents.SKILLET_INGREDIENT, ItemStackWrapper.EMPTY).getStack().isEmpty()) {
 				player.startUsingItem(hand);
-				return InteractionResultHolder.pass(skilletStack);
+				return InteractionResult.PASS;
 			}
 
-			Optional<RecipeHolder<CampfireCookingRecipe>> recipe = getCookingRecipe(cookingStack, level);
-			if (recipe.isPresent()) {
+			// Full recipes only exist on the server as of 1.21.5, so the client decides whether the
+			// held item is cookable from the synchronized campfire input set instead.
+			if (isCookable(cookingStack, level)) {
 				if (player.isUnderWater()) {
 					player.displayClientMessage(TextUtils.item("skillet.underwater"), true);
-					return InteractionResultHolder.pass(skilletStack);
+					return InteractionResult.PASS;
 				}
 				ItemStack cookingStackCopy = cookingStack.copy();
 				ItemStack cookingStackUnit = cookingStackCopy.split(1);
 				skilletStack.set(ModDataComponents.SKILLET_INGREDIENT, new ItemStackWrapper(cookingStackUnit));
-				skilletStack.set(ModDataComponents.COOKING_TIME_LENGTH, recipe.get().value().getCookingTime());
+				getCookingRecipe(cookingStackUnit, level).ifPresent(
+						recipe -> skilletStack.set(ModDataComponents.COOKING_TIME_LENGTH, recipe.value().cookingTime()));
 				player.startUsingItem(hand);
 				player.setItemInHand(otherHand, cookingStackCopy);
-				return InteractionResultHolder.consume(skilletStack);
+				return InteractionResult.CONSUME;
 			} else {
 				player.displayClientMessage(TextUtils.item("skillet.how_to_cook"), true);
 			}
 		}
-		return InteractionResultHolder.pass(skilletStack);
+		return InteractionResult.PASS;
 	}
 
 	@Override
@@ -205,7 +208,7 @@ public class SkilletItem extends BlockItem
 	}
 
 	@Override
-	public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
+	public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
 		if (entity instanceof Player player) {
 			ItemStackWrapper storedStack = stack.getOrDefault(ModDataComponents.SKILLET_INGREDIENT, ItemStackWrapper.EMPTY);
 			if (!storedStack.getStack().isEmpty()) {
@@ -217,6 +220,7 @@ public class SkilletItem extends BlockItem
 				stack.remove(ModDataComponents.SKILLET_FLIPPED.get());
 			}
 		}
+		return false;
 	}
 
 	@Override
@@ -267,11 +271,23 @@ public class SkilletItem extends BlockItem
 		return super.isBarVisible(stack) || stack.has(ModDataComponents.COOKING_TIME_LENGTH.get());
 	}
 
+	/**
+	 * Whether this item can be cooked in a skillet. Backed by the campfire input property set,
+	 * which -- unlike the recipes themselves -- is synchronized to the client.
+	 */
+	public static boolean isCookable(ItemStack stack, Level level) {
+		return !stack.isEmpty() && level.recipeAccess().propertySet(RecipePropertySet.CAMPFIRE_INPUT).test(stack);
+	}
+
+	/**
+	 * Resolves the campfire recipe for this item. Recipes are server-side only as of 1.21.5, so
+	 * this is empty on the client; use {@link #isCookable} for checks that must run on both sides.
+	 */
 	public static Optional<RecipeHolder<CampfireCookingRecipe>> getCookingRecipe(ItemStack stack, Level level) {
-		if (stack.isEmpty()) {
+		if (stack.isEmpty() || !(level instanceof ServerLevel serverLevel)) {
 			return Optional.empty();
 		}
-		return level.getRecipeManager().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(stack), level);
+		return serverLevel.recipeAccess().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(stack), serverLevel);
 	}
 
 	@Override
@@ -282,11 +298,6 @@ public class SkilletItem extends BlockItem
 			return true;
 		}
 		return false;
-	}
-
-	@Override
-	public boolean isValidRepairItem(ItemStack toRepair, ItemStack repair) {
-		return SKILLET_TIER.getRepairIngredient().test(repair) || super.isValidRepairItem(toRepair, repair);
 	}
 
 	public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
@@ -322,8 +333,4 @@ public class SkilletItem extends BlockItem
 		return super.supportsEnchantment(stack, enchantment);
 	}
 
-	@Override
-	public int getEnchantmentValue() {
-		return SKILLET_TIER.getEnchantmentValue();
-	}
 }

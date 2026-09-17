@@ -68,11 +68,11 @@ public class SafetyNetBlock extends Block implements SimpleWaterloggedBlock
 	}
 
 	@Override
-	public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
+	public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
 		if (entity.isSuppressingBounce()) {
 			super.fallOn(level, state, pos, entity, fallDistance);
 		} else {
-			entity.causeFallDamage(fallDistance, 0.0F, level.damageSources().fall());
+			entity.causeFallDamage((float) fallDistance, 0.0F, level.damageSources().fall());
 		}
 	}
 

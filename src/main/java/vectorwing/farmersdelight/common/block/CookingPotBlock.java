@@ -136,7 +136,7 @@ public class CookingPotBlock extends Block implements SimpleWaterloggedBlock, En
 		return state;
 	}
 
-	private CookingPotSupport getTrayState(LevelAccessor level, BlockPos pos) {
+	private CookingPotSupport getTrayState(LevelReader level, BlockPos pos) {
 		if (level.getBlockState(pos.below()).is(ModTags.Blocks.TRAY_HEAT_SOURCES)) {
 			return CookingPotSupport.TRAY;
 		}
@@ -144,8 +144,8 @@ public class CookingPotBlock extends Block implements SimpleWaterloggedBlock, En
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
-		ItemStack stack = super.getCloneItemStack(level, pos, state);
+	protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
+		ItemStack stack = super.getCloneItemStack(level, pos, state, includeData);
 
 		Optional<CookingPotBlockEntity> cookingPot = level.getBlockEntity(pos, ModBlockEntityTypes.COOKING_POT.get());
 		if (cookingPot.isPresent()) {

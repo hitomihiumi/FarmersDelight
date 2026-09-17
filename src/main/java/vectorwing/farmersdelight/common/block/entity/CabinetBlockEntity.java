@@ -143,7 +143,7 @@ public class CabinetBlockEntity extends RandomizableContainerBlockEntity
 	private void playSound(BlockState state, SoundEvent sound) {
 		if (level == null) return;
 
-		Vec3i cabinetFacingVector = state.getValue(CabinetBlock.FACING).getNormal();
+		Vec3i cabinetFacingVector = state.getValue(CabinetBlock.FACING).getUnitVec3i();
 		double x = (double) worldPosition.getX() + 0.5D + (double) cabinetFacingVector.getX() / 2.0D;
 		double y = (double) worldPosition.getY() + 0.5D + (double) cabinetFacingVector.getY() / 2.0D;
 		double z = (double) worldPosition.getZ() + 0.5D + (double) cabinetFacingVector.getZ() / 2.0D;

@@ -1,5 +1,6 @@
 package vectorwing.farmersdelight.common.block;
 
+import net.minecraft.util.TriState;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -24,7 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
-import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -39,7 +40,7 @@ import vectorwing.farmersdelight.common.tag.ModTags;
 import vectorwing.farmersdelight.common.utility.ItemUtils;
 
 @SuppressWarnings("deprecation")
-public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
+public class MushroomColonyBlock extends VegetationBlock implements BonemealableBlock
 {
 	public static final MapCodec<MushroomColonyBlock> CODEC = RecordCodecBuilder.mapCodec(
 			builder -> builder.group(BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("mushroom").forGetter(block -> block.mushroomType), propertiesCodec())
@@ -68,7 +69,7 @@ public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
 		int age = state.getValue(COLONY_AGE);
 
 		if (age > 0) {
-			ItemStack mushroomStack = getCloneItemStack(level, pos, state);
+			ItemStack mushroomStack = getCloneItemStack(level, pos, state, false);
 			if (ItemUtils.isValidTool(heldStack, ItemAbilities.SHEARS_HARVEST, Tags.Items.TOOLS_SHEAR)) {
 				level.setBlock(pos, state.setValue(COLONY_AGE, age - 1), 2);
 				level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -108,20 +109,20 @@ public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
 	}
 
 	@Override
-	protected MapCodec<? extends BushBlock> codec() {
+	protected MapCodec<? extends VegetationBlock> codec() {
 		return CODEC;
 	}
 
 	@Override
 	protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
-		return state.isSolidRender(level, pos);
+		return state.isSolidRender();
 	}
 
 	@Override
 	public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
 		BlockPos floorPos = pos.below();
 		BlockState floorState = level.getBlockState(floorPos);
-		net.neoforged.neoforge.common.util.TriState soilDecision = floorState.canSustainPlant(level, floorPos, net.minecraft.core.Direction.UP, state);
+		TriState soilDecision = floorState.canSustainPlant(level, floorPos, net.minecraft.core.Direction.UP, state);
 		return floorState.is(BlockTags.MUSHROOM_GROW_BLOCK) || (soilDecision.isDefault() ? (level.getRawBrightness(pos, 0) < 13 && this.mayPlaceOn(floorState, level, floorPos)) : soilDecision.isTrue());
 	}
 
@@ -140,7 +141,7 @@ public class MushroomColonyBlock extends BushBlock implements BonemealableBlock
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+	protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
 		return new ItemStack(this.mushroomType.value());
 	}
 

@@ -45,7 +45,7 @@ public class HangingTomatoBlock extends TomatoBlock
 	}
 
 	public boolean placeRope(Level level, BlockPos pos) {
-		Block configuredRopeBlock = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(Configuration.DEFAULT_TOMATO_VINE_ROPE.get()));
+		Block configuredRopeBlock = BuiltInRegistries.BLOCK.getValue(ResourceLocation.parse(Configuration.DEFAULT_TOMATO_VINE_ROPE.get()));
 		if (configuredRopeBlock == null) {
 			configuredRopeBlock = ModBlocks.ROPE.get();
 		}

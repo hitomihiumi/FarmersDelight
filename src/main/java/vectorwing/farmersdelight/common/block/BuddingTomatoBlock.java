@@ -22,7 +22,8 @@ public class BuddingTomatoBlock extends BuddingBushBlock implements Bonemealable
 	@Override
 	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
 		if (state.getValue(BuddingBushBlock.AGE) == 4) {
-			level.setBlock(currentPos, ModBlocks.TOMATO_CROP.get().defaultBlockState(), 3);
+			// updateShape can no longer write to the level, so the swap happens on the next tick.
+			scheduledTickAccess.scheduleTick(currentPos, this, 1);
 		}
 		return super.updateShape(state, level, scheduledTickAccess, currentPos, facing, facingPos, facingState, random);
 	}
@@ -60,6 +61,15 @@ public class BuddingTomatoBlock extends BuddingBushBlock implements Bonemealable
 		} else {
 			int remainingGrowth = ageGrowth - maxAge - 1;
 			level.setBlockAndUpdate(pos, ModBlocks.TOMATO_CROP.get().defaultBlockState().setValue(TomatoBlock.VINE_AGE, remainingGrowth));
+		}
+	}
+
+	@Override
+	protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+		if (state.getValue(BuddingBushBlock.AGE) == 4) {
+			level.setBlock(pos, ModBlocks.TOMATO_CROP.get().defaultBlockState(), 3);
+		} else {
+			super.tick(state, level, pos, random);
 		}
 	}
 }

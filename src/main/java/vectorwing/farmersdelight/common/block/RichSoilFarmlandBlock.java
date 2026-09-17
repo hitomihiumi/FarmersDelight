@@ -94,7 +94,7 @@ public class RichSoilFarmlandBlock extends FarmBlock
 	}
 
 	@Override
-	public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
-		entity.causeFallDamage(fallDistance, 1.0F, entity.damageSources().fall());
+	public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
+		entity.causeFallDamage((float) fallDistance, 1.0F, entity.damageSources().fall());
 	}
 }

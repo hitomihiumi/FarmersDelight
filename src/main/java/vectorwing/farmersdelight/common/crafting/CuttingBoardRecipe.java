@@ -1,5 +1,12 @@
 package vectorwing.farmersdelight.common.crafting;
 
+import org.jetbrains.annotations.Nullable;
+import vectorwing.farmersdelight.common.registry.ModRecipeBookCategories;
+import vectorwing.farmersdelight.common.crafting.display.CuttingBoardRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
@@ -40,6 +47,8 @@ public class CuttingBoardRecipe implements Recipe<CuttingBoardRecipeInput>
 	private final Ingredient tool;
 	private final NonNullList<ChanceResult> results;
 	private final Optional<SoundEvent> soundEvent;
+	@Nullable
+	private PlacementInfo placementInfo;
 
 	public CuttingBoardRecipe(String group, Ingredient input, Ingredient tool, NonNullList<ChanceResult> results, Optional<SoundEvent> soundEvent) {
 		this.group = group;
@@ -65,22 +74,54 @@ public class CuttingBoardRecipe implements Recipe<CuttingBoardRecipeInput>
 	}
 
 	@Override
+	public String group() {
+		return this.group;
+	}
+
+	/**
+	 * Kept for add-ons that still call the pre-1.21.5 name.
+	 */
 	public String getGroup() {
 		return this.group;
 	}
 
-	@Override
 	public NonNullList<Ingredient> getIngredients() {
 		NonNullList<Ingredient> nonnulllist = NonNullList.create();
 		nonnulllist.add(this.input);
 		return nonnulllist;
 	}
 
+	public Ingredient getInput() {
+		return this.input;
+	}
+
+	@Override
+	public PlacementInfo placementInfo() {
+		if (this.placementInfo == null) {
+			this.placementInfo = PlacementInfo.create(this.input);
+		}
+		return this.placementInfo;
+	}
+
+	@Override
+	public RecipeBookCategory recipeBookCategory() {
+		return ModRecipeBookCategories.CUTTING.get();
+	}
+
+	@Override
+	public List<RecipeDisplay> display() {
+		return List.of(new CuttingBoardRecipeDisplay(
+				this.input.display(),
+				this.tool.display(),
+				this.results.stream().map(result -> (SlotDisplay) new SlotDisplay.ItemStackSlotDisplay(result.stack())).toList(),
+				new SlotDisplay.ItemStackSlotDisplay(this.results.getFirst().stack()),
+				new SlotDisplay.ItemSlotDisplay(ModItems.CUTTING_BOARD.get())));
+	}
+
 	public Ingredient getTool() {
 		return this.tool;
 	}
 
-	@Override
 	public ItemStack getResultItem(HolderLookup.Provider provider) {
 		return this.results.getFirst().stack();
 	}
@@ -115,17 +156,12 @@ public class CuttingBoardRecipe implements Recipe<CuttingBoardRecipeInput>
 	}
 
 	@Override
-	public boolean canCraftInDimensions(int width, int height) {
-		return width * height >= this.getMaxInputCount();
-	}
-
-	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public RecipeSerializer<CuttingBoardRecipe> getSerializer() {
 		return ModRecipeSerializers.CUTTING.get();
 	}
 
 	@Override
-	public RecipeType<?> getType() {
+	public RecipeType<CuttingBoardRecipe> getType() {
 		return ModRecipeTypes.CUTTING.get();
 	}
 

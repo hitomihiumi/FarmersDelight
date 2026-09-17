@@ -69,7 +69,7 @@ public class RopeFenceBlock extends CrossCollisionBlock
 	}
 
 	@Override
-	public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+	protected VoxelShape getOcclusionShape(BlockState state) {
 		return POST;
 	}
 

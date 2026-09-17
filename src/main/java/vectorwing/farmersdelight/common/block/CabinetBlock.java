@@ -53,7 +53,9 @@ public class CabinetBlock extends BaseEntityBlock
 		}
 		if (level.getBlockEntity(pos) instanceof CabinetBlockEntity cabinet) {
 			player.openMenu(cabinet);
-			PiglinAi.angerNearbyPiglins(player, true);
+			if (level instanceof ServerLevel serverLevel) {
+				PiglinAi.angerNearbyPiglins(serverLevel, player, true);
+			}
 		}
 		return InteractionResult.CONSUME;
 	}

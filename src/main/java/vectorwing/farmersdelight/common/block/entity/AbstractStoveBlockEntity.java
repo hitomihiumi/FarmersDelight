@@ -1,5 +1,6 @@
 package vectorwing.farmersdelight.common.block.entity;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.core.BlockPos;
@@ -114,7 +115,7 @@ public abstract class AbstractStoveBlockEntity extends BlockEntity implements Cl
 			if (cookingProgress[i] < cookingTime[i]) continue;
 
 			var input = new SingleRecipeInput(ingredient);
-			ItemStack result = this.quickRecipeLookup.getRecipeFor(input, this.level)
+			ItemStack result = getCookingRecipe(ingredient)
 				.map((recipe) -> recipe.value().assemble(input, this.level.registryAccess()))
 				.orElse(ingredient);
 
@@ -144,8 +145,11 @@ public abstract class AbstractStoveBlockEntity extends BlockEntity implements Cl
 	}
 
 	public Optional<? extends RecipeHolder<? extends AbstractCookingRecipe>> getCookingRecipe(ItemStack itemStack) {
-		assert this.level != null;
-		return this.quickRecipeLookup.getRecipeFor(new SingleRecipeInput(itemStack), this.level);
+		// Recipes only resolve on the server as of 1.21.5.
+		if (!(this.level instanceof ServerLevel serverLevel)) {
+			return Optional.empty();
+		}
+		return this.quickRecipeLookup.getRecipeFor(new SingleRecipeInput(itemStack), serverLevel);
 	}
 
 	public int getNextEmptySlot() {
@@ -162,7 +166,7 @@ public abstract class AbstractStoveBlockEntity extends BlockEntity implements Cl
 		if (emptySlotIndex < 0) return false;
 		assert this.items.getStackInSlot(emptySlotIndex).isEmpty();
 
-		this.cookingTime[emptySlotIndex] = recipe.value().getCookingTime();
+		this.cookingTime[emptySlotIndex] = recipe.value().cookingTime();
 		this.cookingProgress[emptySlotIndex] = 0;
 		this.items.setStackInSlot(emptySlotIndex, foodStackToPlace.split(1));
 		var state = this.getBlockState();

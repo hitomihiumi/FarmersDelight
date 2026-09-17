@@ -1,6 +1,8 @@
 package vectorwing.farmersdelight.common.registry;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -13,10 +15,13 @@ public class ModEntityTypes
 {
 	public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Registries.ENTITY_TYPE, FarmersDelight.MODID);
 
+	private static final ResourceKey<EntityType<?>> ROTTEN_TOMATO_KEY = ResourceKey.create(
+			Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(FarmersDelight.MODID, "rotten_tomato"));
+
 	public static final Supplier<EntityType<RottenTomatoEntity>> ROTTEN_TOMATO = ENTITIES.register("rotten_tomato", () -> (
 			EntityType.Builder.<RottenTomatoEntity>of(RottenTomatoEntity::new, MobCategory.MISC)
 					.sized(0.25F, 0.25F)
 					.clientTrackingRange(4)
 					.updateInterval(10)
-					.build("rotten_tomato")));
+					.build(ROTTEN_TOMATO_KEY)));
 }

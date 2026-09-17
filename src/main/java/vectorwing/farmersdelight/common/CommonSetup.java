@@ -1,8 +1,6 @@
 package vectorwing.farmersdelight.common;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -10,7 +8,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import vectorwing.farmersdelight.common.registry.ModItems;
 
 import java.util.HashMap;
-import java.util.Set;
 
 public class CommonSetup
 {
@@ -26,17 +23,8 @@ public class CommonSetup
 	}
 
 	public static void registerItemSetAdditions() {
-		Set<Item> newWantedItems = Sets.newHashSet(
-				ModItems.CABBAGE.get(),
-				ModItems.TOMATO.get(),
-				ModItems.ONION.get(),
-				ModItems.RICE.get(),
-				ModItems.CABBAGE_SEEDS.get(),
-				ModItems.TOMATO_SEEDS.get(),
-				ModItems.RICE_PANICLE.get());
-		newWantedItems.addAll(Villager.WANTED_ITEMS);
-		Villager.WANTED_ITEMS = ImmutableSet.copyOf(newWantedItems);
-
+		// Villager.WANTED_ITEMS was replaced by the minecraft:villager_picks_up item tag in 1.21.5;
+		// the mod's crops are added to it through data generation instead.
 		HashMap<Item, Integer> newFoodPoints = new HashMap<>();
 		newFoodPoints.put(ModItems.CABBAGE.get(), 1);
 		newFoodPoints.put(ModItems.TOMATO.get(), 1);

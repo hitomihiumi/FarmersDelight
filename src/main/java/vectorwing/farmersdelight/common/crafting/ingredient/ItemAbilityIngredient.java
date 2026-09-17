@@ -3,7 +3,9 @@ package vectorwing.farmersdelight.common.crafting.ingredient;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.ItemAbility;
@@ -13,6 +15,8 @@ import vectorwing.farmersdelight.common.registry.ModIngredientTypes;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -27,17 +31,18 @@ public class ItemAbilityIngredient implements ICustomIngredient
 			).apply(inst, ItemAbilityIngredient::new));
 
 	protected final ItemAbility itemAbility;
-	protected Stream<ItemStack> itemStacks;
+	@Nullable
+	protected List<Holder<Item>> matchingItems;
 
 	public ItemAbilityIngredient(ItemAbility itemAbility) {
 		this.itemAbility = itemAbility;
 	}
 
 	protected void dissolve() {
-		if (this.itemStacks == null) {
-			itemStacks = BuiltInRegistries.ITEM.stream()
-					.map(ItemStack::new)
-					.filter(stack -> stack.canPerformAction(itemAbility));
+		if (this.matchingItems == null) {
+			this.matchingItems = BuiltInRegistries.ITEM.listElements()
+					.filter(holder -> new ItemStack(holder.value()).canPerformAction(itemAbility))
+					.collect(Collectors.toList());
 		}
 	}
 
@@ -47,9 +52,9 @@ public class ItemAbilityIngredient implements ICustomIngredient
 	}
 
 	@Override
-	public Stream<ItemStack> getItems() {
+	public Stream<Holder<Item>> items() {
 		dissolve();
-		return itemStacks;
+		return this.matchingItems.stream();
 	}
 
 	@Override

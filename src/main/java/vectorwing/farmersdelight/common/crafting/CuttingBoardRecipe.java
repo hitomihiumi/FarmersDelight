@@ -1,6 +1,7 @@
 package vectorwing.farmersdelight.common.crafting;
 
 import org.jetbrains.annotations.Nullable;
+import vectorwing.farmersdelight.common.registry.ModItems;
 import vectorwing.farmersdelight.common.registry.ModRecipeBookCategories;
 import vectorwing.farmersdelight.common.crafting.display.CuttingBoardRecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;

@@ -67,7 +67,7 @@ public class VillageStructures
 		if (pool == null) return;
 
 		ResourceLocation emptyProcessor = ResourceLocation.withDefaultNamespace("empty");
-		Holder<StructureProcessorList> processorHolder = processorListRegistry.getHolderOrThrow(ResourceKey.create(Registries.PROCESSOR_LIST, emptyProcessor));
+		Holder<StructureProcessorList> processorHolder = processorListRegistry.getOrThrow(ResourceKey.create(Registries.PROCESSOR_LIST, emptyProcessor));
 
 		SinglePoolElement piece = SinglePoolElement.single(nbtPieceRL, processorHolder).apply(StructureTemplatePool.Projection.RIGID);
 
